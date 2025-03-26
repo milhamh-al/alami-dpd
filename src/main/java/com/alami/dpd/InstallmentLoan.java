@@ -19,5 +19,9 @@ public class InstallmentLoan {
     BigDecimal amount;
     BigDecimal benefPaymentAmount;
     LocalDate repaymentDate;
+    LocalDate today;
     Status status;
+    Integer latestDpd;
+    Integer maxDpd;
+    Boolean isPartialInstallment;
 }

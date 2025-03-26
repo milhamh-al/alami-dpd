@@ -1,6 +1,6 @@
 package com.alami.dpd;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -8,25 +8,98 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class Installment {
-    public Dpd calculateV4(List<InstallmentLoan> installmentLoans, LocalDate today) {
-        if (installmentLoans == null || installmentLoans.isEmpty()) {
-            return new Dpd(0, 0);
+    // Payment Status Checks
+    private boolean isGracePeriod(InstallmentLoan loan) {
+        return loan.getAmount().equals(BigDecimal.ZERO);
+    }
+
+    private boolean isRegularFullPayment(InstallmentLoan loan) {
+        return !loan.getIsPartialInstallment()
+            && loan.getBenefPaymentAmount() != null
+            && loan.getBenefPaymentAmount().compareTo(loan.getAmount()) >= 0;
+    }
+
+    private boolean isAfterMaturity(InstallmentLoan loan) {
+        return loan.getToday().isAfter(loan.getMaturityDate());
+    }
+
+    private boolean isPeriodFullyPaid(InstallmentLoan loan, BigDecimal totalPayments) {
+        return totalPayments.compareTo(loan.getAmount()) >= 0;
+    }
+
+    // Payment Calculations
+    private BigDecimal calculateTotalPaymentsUpToDate(List<InstallmentLoan> loans, InstallmentLoan currentLoan) {
+        return loans.stream()
+            .filter(l -> l.getPeriod().equals(currentLoan.getPeriod())
+                && l.getBenefPaymentAmount() != null
+                && l.getRepaymentDate().compareTo(currentLoan.getRepaymentDate()) <= 0)
+            .map(InstallmentLoan::getBenefPaymentAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private int calculateDpd(InstallmentLoan loan) {
+        return (int) ChronoUnit.DAYS.between(loan.getMaturityDate(), loan.getToday());
+    }
+
+    // DPD Updates
+    private void setZeroDpd(InstallmentLoan loan) {
+        loan.setLatestDpd(0);
+        loan.setMaxDpd(0);
+    }
+
+    private void setDpdForUnpaidLoan(InstallmentLoan loan) {
+        int dpd = calculateDpd(loan);
+        loan.setLatestDpd(dpd);
+        loan.setMaxDpd(dpd);
+    }
+
+    private void setDpdForCompletedPeriod(InstallmentLoan loan) {
+        loan.setLatestDpd(0);
+        int maxDpd = calculateDpd(loan);
+        loan.setMaxDpd(maxDpd);
+    }
+
+    private void updateDpdForPartialPayment(InstallmentLoan loan, List<InstallmentLoan> allLoans) {
+        if (!loan.getIsPartialInstallment()) {
+            setDpdForUnpaidLoan(loan);
+            return;
         }
 
-        // Find earliest unpaid installment (no payment amount) by maturity date
-        InstallmentLoan earliestUnpaid = installmentLoans.stream()
-            .filter(loan -> loan.getBenefPaymentAmount() == null)
-            .min((a, b) -> a.getMaturityDate().compareTo(b.getMaturityDate()))
-            .orElse(null);
-
-        // If all installments are paid or we're before first maturity
-        if (earliestUnpaid == null || today.isBefore(earliestUnpaid.getMaturityDate())) {
-            return new Dpd(0, 0);
+        BigDecimal totalPayments = calculateTotalPaymentsUpToDate(allLoans, loan);
+        if (isPeriodFullyPaid(loan, totalPayments)) {
+            setDpdForCompletedPeriod(loan);
+        } else {
+            setDpdForUnpaidLoan(loan);
         }
+    }
 
-        // Calculate DPD based on earliest unpaid installment
-        int dpd = (int) ChronoUnit.DAYS.between(earliestUnpaid.getMaturityDate(), today);
+    // Main Method
+    public List<InstallmentLoan> calculateV4(List<InstallmentLoan> installmentLoans) {
+        int maxDpdSoFar = 0;
         
-        return new Dpd(dpd, dpd); // Both latest and max DPD are the same
+        for (InstallmentLoan loan : installmentLoans) {
+            if (isGracePeriod(loan)) {
+                setZeroDpd(loan);
+                continue;
+            }
+
+            if (!isAfterMaturity(loan)) {
+                setZeroDpd(loan);
+                continue;
+            }
+
+            if (isRegularFullPayment(loan)) {
+                setDpdForCompletedPeriod(loan);
+            } else {
+                updateDpdForPartialPayment(loan, installmentLoans);
+            }
+
+            // Track the highest DPD seen so far
+            maxDpdSoFar = Math.max(maxDpdSoFar, loan.getMaxDpd());
+            // Update current loan's max DPD to be at least as high as previous periods
+            loan.setMaxDpd(Math.max(loan.getMaxDpd(), maxDpdSoFar));
+        }
+        
+        return installmentLoans;
     }
 }
