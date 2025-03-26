@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -70,7 +71,10 @@ public class InstallmentLoanV3 {
     }
 
     private boolean isValidNonGracePeriod(InstallmentV3 installment) {
-        return !installment.isGracePeriod() && installment.getMaturityDate() != null;
+        return !installment.isGracePeriod() 
+            && installment.getMaturityDate() != null
+            && installment.getAmount() != null 
+            && installment.getAmount().compareTo(BigDecimal.ZERO) > 0;
     }
 
     private int findLatestDpd(LocalDate calculationDate, LocalDate earliestMaturityDate) {
