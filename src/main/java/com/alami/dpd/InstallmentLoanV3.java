@@ -38,6 +38,8 @@ public class InstallmentLoanV3 {
                         .orElse(calculationDate);
 
                 LocalDate writtenOffDate = writtenOffInstallment.get().getWrittenOfDate();
+                System.out.println("writtenof date:" + writtenOffDate);
+                System.out.println("latestMaturityDate:" + latestMaturityDate);
                 long dpd = java.time.temporal.ChronoUnit.DAYS.between(latestMaturityDate, writtenOffDate);
                 return Dpd.builder()
                         .latestDpd((int) dpd)

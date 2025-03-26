@@ -596,13 +596,20 @@ class InstallmentV3Test {
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-04-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .build();
+
+        InstallmentV3 installment6 = InstallmentV3.builder()
                 .repaymentStatus(RepaymentStatus.WRITE_OFF)
                 .writtenOfDate(LocalDate.parse("2025-08-01"))
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
                 .installments(Arrays.asList(
-                        installment1, installment2, installment3, installment4, installment5)
+                        installment1, installment2, installment3, 
+                        installment4, installment5, installment6)
                 )
                 .status(Status.WRITE_OFF)
                 .build();
@@ -617,47 +624,97 @@ class InstallmentV3Test {
     void testCase13() {
         InstallmentV3 installment1 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2024-12-20"))
-                .amount(BigDecimal.ZERO)
-                .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-01-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
-                .paidAmount(BigDecimal.valueOf(50_000_000))
-                .repaymentStatus(RepaymentStatus.PAID)
-                .repaymentDate(LocalDate.parse("2025-01-25"))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
-                .paidAmount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-03-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
-                .paidAmount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
-                .repaymentStatus(RepaymentStatus.WRITE_OFF)
-                .writtenOfDate(LocalDate.parse("2025-08-01"))
+                .maturityDate(LocalDate.parse("2025-04-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
-                .installments(Arrays.asList(
-                        installment1, installment2, installment3, installment4, installment5)
-                )
-                .status(Status.WRITE_OFF)
+                .installments(
+                        Arrays.asList(
+                                installment1, 
+                                installment2,
+                                installment3,
+                                installment4,
+                                installment5
+                                ))
                 .build();
 
-        LocalDate calculationDate = LocalDate.parse("2025-08-01");
+        LocalDate calculationDate = LocalDate.parse("2024-12-21");
         Dpd dpd = loan.calculateLatestDpd(calculationDate);
-        assertEquals(134, dpd.getLatestDpd()); // 2025-08-01 - 2025-03-20 = 134 days
-        assertEquals(134, dpd.getMaxDpd());
+        assertEquals(1, dpd.getLatestDpd());
+        assertEquals(1, dpd.getMaxDpd());
+    }
+
+    @Test
+    void testCase14() {
+        InstallmentV3 installment1 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2024-12-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .build();
+
+        InstallmentV3 installment2 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-01-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .build();
+
+        InstallmentV3 installment3 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-02-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .build();
+
+        InstallmentV3 installment4 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-03-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .build();
+
+        InstallmentV3 installment5 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-04-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .build();
+
+        InstallmentLoanV3 loan = InstallmentLoanV3.builder()
+                .installments(
+                        Arrays.asList(
+                                installment1, 
+                                installment2,
+                                installment3,
+                                installment4,
+                                installment5
+                                ))
+                .build();
+
+        LocalDate calculationDate = LocalDate.parse("2025-01-25");
+        Dpd dpd = loan.calculateLatestDpd(calculationDate);
+        assertEquals(36, dpd.getLatestDpd());
+        assertEquals(36, dpd.getMaxDpd());
     }
 }
