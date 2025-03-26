@@ -14,9 +14,10 @@ public class InstallmentV3 {
     private BigDecimal paidAmount;
     private RepaymentStatus repaymentStatus;
     private LocalDate repaymentDate;
+    private LocalDate writtenOfDate;
 
     public boolean isGracePeriod() {
-        return BigDecimal.ZERO.compareTo(amount) == 0 || repaymentStatus == RepaymentStatus.GRACE_PERIOD;
+        return amount != null && BigDecimal.ZERO.compareTo(amount) == 0 && repaymentStatus == RepaymentStatus.GRACE_PERIOD;
     }
 
     public boolean isFullyPaid() {
@@ -32,8 +33,23 @@ public class InstallmentV3 {
     }
 
     public long calculateDpd(LocalDate calculationDate) {
-        if (isGracePeriod() || isFullyPaid() || isWrittenOff() || calculationDate.compareTo(maturityDate) <= 0) {
+        if (isGracePeriod() || calculationDate.compareTo(maturityDate) <= 0) {
             return 0;
+        }
+
+        if (isWrittenOff() && writtenOfDate != null) {
+            if (maturityDate == null) {
+                return 0;
+            }
+            // For written off installments, calculate DPD from write-off date to maturity date
+            return java.time.temporal.ChronoUnit.DAYS.between(maturityDate, writtenOfDate);
+        }
+
+        if (isFullyPaid() && repaymentDate != null) {
+            if (repaymentDate.compareTo(maturityDate) <= 0) {
+                return 0;
+            }
+            return java.time.temporal.ChronoUnit.DAYS.between(maturityDate, repaymentDate);
         }
 
         return java.time.temporal.ChronoUnit.DAYS.between(maturityDate, calculationDate);

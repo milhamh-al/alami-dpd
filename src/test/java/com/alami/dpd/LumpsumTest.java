@@ -25,7 +25,8 @@ public class LumpsumTest {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = null;
             LocalDate today = LocalDate.of(2024, 12, 3);
-            RepaymentStatus status = RepaymentStatus.NOT_PAID;
+            Status status = Status.DISBURSEMENT;
+            RepaymentStatus repaymentStatus = RepaymentStatus.NOT_PAID;
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -33,6 +34,7 @@ public class LumpsumTest {
                     .maturityDate(maturityDate)
                     .repaymentDate(repaymentDate)
                     .today(today)
+                    .repaymentStatus(repaymentStatus)
                     .status(status)
                     .build()
             );
@@ -47,7 +49,9 @@ public class LumpsumTest {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = LocalDate.of(2024, 12, 20);
             LocalDate today = LocalDate.of(2024, 12, 20);
-            RepaymentStatus status = RepaymentStatus.PAID;
+            Status status = Status.READY_FOR_REPAYMENT;
+            RepaymentStatus repaymentStatus = RepaymentStatus.NOT_PAID;
+
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -56,6 +60,7 @@ public class LumpsumTest {
                     .repaymentDate(repaymentDate)
                     .today(today)
                     .status(status)
+                    .repaymentStatus(repaymentStatus)
                     .build()
             );
 
@@ -72,7 +77,8 @@ public class LumpsumTest {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = null;
             LocalDate today = LocalDate.of(2024, 12, 24);
-            RepaymentStatus status = RepaymentStatus.NOT_PAID;
+            Status status = Status.DISBURSEMENT;
+            RepaymentStatus repaymentStatus = RepaymentStatus.NOT_PAID;
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -81,6 +87,7 @@ public class LumpsumTest {
                     .repaymentDate(repaymentDate)
                     .today(today)
                     .status(status)
+                    .repaymentStatus(repaymentStatus)
                     .build()
             );
             
@@ -94,7 +101,8 @@ public class LumpsumTest {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = LocalDate.of(2024, 12, 24);
             LocalDate today = LocalDate.of(2024, 12, 24);
-            RepaymentStatus status = RepaymentStatus.PAID;
+            Status status = Status.READY_FOR_REPAYMENT;
+            RepaymentStatus repaymentStatus = RepaymentStatus.PAID;
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -103,6 +111,7 @@ public class LumpsumTest {
                     .repaymentDate(repaymentDate)
                     .today(today)
                     .status(status)
+                    .repaymentStatus(repaymentStatus)
                     .build()
             );
             
@@ -119,7 +128,8 @@ public class LumpsumTest {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = null;
             LocalDate today = LocalDate.of(2024, 12, 31);
-            RepaymentStatus status = RepaymentStatus.NOT_PAID;
+            Status status = Status.DISBURSEMENT;
+            RepaymentStatus repaymentStatus = RepaymentStatus.NOT_PAID;
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -128,6 +138,7 @@ public class LumpsumTest {
                     .repaymentDate(repaymentDate)
                     .today(today)
                     .status(status)
+                    .repaymentStatus(repaymentStatus)
                     .build()
             );
             
@@ -141,7 +152,8 @@ public class LumpsumTest {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = LocalDate.of(2024, 12, 31);
             LocalDate today = LocalDate.of(2024, 12, 31);
-            RepaymentStatus status = RepaymentStatus.PAID;
+            Status status = Status.READY_FOR_REPAYMENT;
+            RepaymentStatus repaymentStatus = RepaymentStatus.PAID;
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -150,6 +162,7 @@ public class LumpsumTest {
                     .repaymentDate(repaymentDate)
                     .today(today)
                     .status(status)
+                    .repaymentStatus(repaymentStatus)
                     .build()
             );
             
