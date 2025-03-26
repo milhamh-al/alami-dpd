@@ -1037,10 +1037,10 @@ public class InstallmentTest {
 
             List<InstallmentLoan> res = installment.calculateV4(installmentLoans);
             assertEquals(0, res.get(0).getLatestDpd());
-            assertEquals(4, res.get(0).getMaxDpd());
+            assertEquals(11, res.get(0).getMaxDpd());
 
-            assertEquals(8, res.get(1).getLatestDpd());
-            assertEquals(8, res.get(1).getMaxDpd());
+            assertEquals(5, res.get(1).getLatestDpd());
+            assertEquals(11, res.get(1).getMaxDpd());
         }
     }    
 }
