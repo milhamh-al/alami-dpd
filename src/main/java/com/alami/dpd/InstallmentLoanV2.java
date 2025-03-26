@@ -23,8 +23,8 @@ public class InstallmentLoanV2 {
     private LocalDate repaymentDate;
     private RepaymentStatus repaymentStatus;
     
-    // Current Date
-    private LocalDate today;
+    // When this period was processed
+    private LocalDate processedDate;
     
     // DPD Information
     private Integer latestDpd;

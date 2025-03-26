@@ -23,22 +23,16 @@ public class InstallmentV2 {
     }
 
 
-    public Dpd calculate(List<InstallmentLoanV2> loans) {
-        if (loans == null || loans.isEmpty()) {
+    public Dpd calculate(List<InstallmentLoanV2> loans, LocalDate calculationDate) {
+        if (loans == null || loans.isEmpty() || calculationDate == null) {
             return Dpd.builder()
                      .latestDpd(0)
                      .maxDpd(0)
                      .build();
         }
 
-        // Use the latest today date
-        LocalDate currentDate = loans.stream()
-            .map(InstallmentLoanV2::getToday)
-            .max(LocalDate::compareTo)
-            .orElse(loans.get(0).getToday());
-
         // If we haven't reached first maturity date, no DPD
-        if (currentDate.isBefore(loans.get(0).getMaturityDate())) {
+        if (calculationDate.isBefore(loans.get(0).getMaturityDate())) {
             return Dpd.builder()
                      .latestDpd(0)
                      .maxDpd(0)
@@ -53,7 +47,7 @@ public class InstallmentV2 {
         for (InstallmentLoanV2 loan : loans) {
             if (!isGracePeriod(loan) &&
                 loan.getRepaymentStatus() != RepaymentStatus.PAID &&
-                currentDate.isAfter(loan.getMaturityDate())) {
+                calculationDate.isAfter(loan.getMaturityDate())) {
                 if (earliestUnpaidPeriod == null ||
                     loan.getMaturityDate().isBefore(earliestUnpaidPeriod.getMaturityDate())) {
                     earliestUnpaidPeriod = loan;
@@ -68,7 +62,7 @@ public class InstallmentV2 {
                 if (loan.getRepaymentStatus() == RepaymentStatus.PAID) {
                     endDate = loan.getRepaymentDate();
                 } else {
-                    endDate = currentDate;
+                    endDate = calculationDate;
                 }
                 
                 if (endDate.isAfter(loan.getMaturityDate())) {
@@ -78,9 +72,18 @@ public class InstallmentV2 {
             }
         }
 
-        // Calculate latest DPD from earliest unpaid/partially paid period
-        if (earliestUnpaidPeriod != null) {
-            latestDpd = calculateDpd(earliestUnpaidPeriod.getMaturityDate(), currentDate);
+        // Calculate latest DPD from the last period if not paid
+        InstallmentLoanV2 lastPeriod = null;
+        for (InstallmentLoanV2 loan : loans) {
+            if (!isGracePeriod(loan)) {
+                lastPeriod = loan;
+            }
+        }
+
+        if (lastPeriod != null &&
+            lastPeriod.getRepaymentStatus() != RepaymentStatus.PAID &&
+            calculationDate.isAfter(lastPeriod.getMaturityDate())) {
+            latestDpd = calculateDpd(lastPeriod.getMaturityDate(), calculationDate);
         }
 
         return Dpd.builder()
