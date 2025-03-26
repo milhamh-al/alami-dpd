@@ -31,7 +31,11 @@ public class InstallmentV2 {
                      .build();
         }
 
-        LocalDate currentDate = loans.get(0).getToday();
+        // Use the latest today date
+        LocalDate currentDate = loans.stream()
+            .map(InstallmentLoanV2::getToday)
+            .max(LocalDate::compareTo)
+            .orElse(loans.get(0).getToday());
 
         // If we haven't reached first maturity date, no DPD
         if (currentDate.isBefore(loans.get(0).getMaturityDate())) {
@@ -44,10 +48,12 @@ public class InstallmentV2 {
         int maxDpd = 0;
         int latestDpd = 0;
 
-        // Find the earliest unpaid period that's past due
+        // Find the earliest unpaid/partially paid period
         InstallmentLoanV2 earliestUnpaidPeriod = null;
         for (InstallmentLoanV2 loan : loans) {
-            if (!isGracePeriod(loan) && !isInstallmentPeriodFullyPaid(loan) && currentDate.isAfter(loan.getMaturityDate())) {
+            if (!isGracePeriod(loan) &&
+                loan.getRepaymentStatus() != RepaymentStatus.PAID &&
+                currentDate.isAfter(loan.getMaturityDate())) {
                 if (earliestUnpaidPeriod == null ||
                     loan.getMaturityDate().isBefore(earliestUnpaidPeriod.getMaturityDate())) {
                     earliestUnpaidPeriod = loan;
@@ -55,11 +61,26 @@ public class InstallmentV2 {
             }
         }
 
-        // If we found an unpaid period, calculate DPD from its maturity date
+        // Calculate max DPD from all periods
+        for (InstallmentLoanV2 loan : loans) {
+            if (!isGracePeriod(loan)) {
+                LocalDate endDate;
+                if (loan.getRepaymentStatus() == RepaymentStatus.PAID) {
+                    endDate = loan.getRepaymentDate();
+                } else {
+                    endDate = currentDate;
+                }
+                
+                if (endDate.isAfter(loan.getMaturityDate())) {
+                    int dpd = calculateDpd(loan.getMaturityDate(), endDate);
+                    maxDpd = Math.max(maxDpd, dpd);
+                }
+            }
+        }
+
+        // Calculate latest DPD from earliest unpaid/partially paid period
         if (earliestUnpaidPeriod != null) {
-            int dpd = calculateDpd(earliestUnpaidPeriod.getMaturityDate(), currentDate);
-            latestDpd = dpd;
-            maxDpd = dpd;
+            latestDpd = calculateDpd(earliestUnpaidPeriod.getMaturityDate(), currentDate);
         }
 
         return Dpd.builder()

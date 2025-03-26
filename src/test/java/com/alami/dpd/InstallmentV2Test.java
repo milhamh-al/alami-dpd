@@ -640,11 +640,10 @@ public class InstallmentV2Test {
         3. 20-02-2025: Grace Period
         4. 20-03-2025: Paid
         5. 20-04-2025: Not Paid
-        Expected: DPD = 41 (from earliest unpaid period 20-03-2025)
+        Expected: DPD = 10
         """)
     void case_10_multiple_statuses() {
         List<InstallmentLoanV2> loans = new ArrayList<>();
-        LocalDate today = LocalDate.of(2025, 4, 30);
 
         // Period 1 - Grace Period
         loans.add(InstallmentLoanV2.builder()
@@ -665,7 +664,7 @@ public class InstallmentV2Test {
             .benefPaymentAmount(BigDecimal.valueOf(50_000_000))
             .repaymentDate(LocalDate.of(2025, 1, 25))
             .repaymentStatus(RepaymentStatus.PAID)
-            .today(today)
+            .today(LocalDate.of(2025, 1, 25))
             .build());
 
         // Period 3 - Grace Period
@@ -676,18 +675,18 @@ public class InstallmentV2Test {
             .benefPaymentAmount(null)
             .repaymentDate(null)
             .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
-            .today(today)
+            .today(LocalDate.of(2025, 2, 27))
             .build());
 
-        // Period 4 - Not Paid
+        // Period 4 - Paid
         loans.add(InstallmentLoanV2.builder()
             .period(4)
             .maturityDate(LocalDate.of(2025, 3, 20))
             .amount(BigDecimal.valueOf(50_000_000))
-            .benefPaymentAmount(null)
-            .repaymentDate(null)
-            .repaymentStatus(RepaymentStatus.NOT_PAID)
-            .today(today)
+            .benefPaymentAmount(BigDecimal.valueOf(50_000_000))
+            .repaymentDate(LocalDate.of(2025, 4, 20))
+            .repaymentStatus(RepaymentStatus.PAID)
+            .today(LocalDate.of(2025, 4, 20))
             .build());
 
         // Period 5 - Not Paid
@@ -698,12 +697,12 @@ public class InstallmentV2Test {
             .benefPaymentAmount(null)
             .repaymentDate(null)
             .repaymentStatus(RepaymentStatus.NOT_PAID)
-            .today(today)
+            .today(LocalDate.of(2025, 4, 30))
             .build());
 
         Dpd result = installment.calculate(loans);
-        assertEquals(41, result.getLatestDpd());
-        assertEquals(41, result.getMaxDpd());
+        assertEquals(10, result.getLatestDpd());
+        assertEquals(31, result.getMaxDpd());
     }
     //     2. 20-01-2025: Paid
     //     3. 20-02-2025: Grace Period
