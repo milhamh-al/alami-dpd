@@ -615,7 +615,7 @@ class InstallmentV3Test {
 
         LocalDate calculationDate = LocalDate.parse("2025-04-30");
         Dpd dpd = loan.calculateLatestDpd(calculationDate);
-        assertEquals(0, dpd.getLatestDpd());
+        assertEquals(15, dpd.getLatestDpd());
         assertEquals(41, dpd.getMaxDpd());
     }
 

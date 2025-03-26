@@ -6,6 +6,7 @@ import lombok.Value;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -16,110 +17,153 @@ public class InstallmentLoanV3 {
     private Status status;
 
     public Dpd calculateLatestDpd(LocalDate calculationDate) {
-        // If loan is fully repaid, return 0 for latest DPD
-        if (status == Status.REPAYMENT_SUCCESS || status == Status.SETTLEMENT_SUCCESS) {
-            return Dpd.builder()
-                    .latestDpd(0)
-                    .maxDpd(calculateMaxDpd(calculationDate))
-                    .build();
-        }
-
-        // For written off loans, calculate DPD from latest maturity date to write-off date
         if (status == Status.WRITE_OFF) {
-            Optional<InstallmentV3> writtenOffInstallment = installments.stream()
-                    .filter(InstallmentV3::isWrittenOff)
-                    .findFirst();
-
-            if (writtenOffInstallment.isPresent() && writtenOffInstallment.get().getWrittenOfDate() != null) {
-                // Find latest maturity date from non-grace periods
-                LocalDate latestMaturityDate = installments.stream()
-                        .filter(installment -> !installment.isGracePeriod() && installment.getMaturityDate() != null)
-                        .map(InstallmentV3::getMaturityDate)
-                        .max(LocalDate::compareTo)
-                        .orElse(calculationDate);
-
-                LocalDate writtenOffDate = writtenOffInstallment.get().getWrittenOfDate();
-                System.out.println("writtenof date:" + writtenOffDate);
-                System.out.println("latestMaturityDate:" + latestMaturityDate);
-                long dpd = java.time.temporal.ChronoUnit.DAYS.between(latestMaturityDate, writtenOffDate);
-                return Dpd.builder()
-                        .latestDpd((int) dpd)
-                        .maxDpd((int) dpd)
-                        .build();
-            }
+            return calculateWrittenOffDpd(calculationDate);
         }
 
-        // Get the earliest maturity date
-        LocalDate earliestMaturityDate = installments.stream()
-                .filter(installment -> !installment.isGracePeriod() && installment.getMaturityDate() != null)
+        LocalDate earliestMaturityDate = findEarliestMaturityDate(calculationDate);
+        if (calculationDate.compareTo(earliestMaturityDate) <= 0) {
+            return buildDpd(0, 0);
+        }
+
+        int latestDpd = findLatestDpd(calculationDate, earliestMaturityDate);
+        int maxDpd = calculateMaxDpd(calculationDate);
+        return buildDpd(latestDpd, maxDpd);
+    }
+
+    private Dpd calculateWrittenOffDpd(LocalDate calculationDate) {
+        Optional<InstallmentV3> writtenOffInstallment = findWrittenOffInstallment();
+        if (writtenOffInstallment.isEmpty() || writtenOffInstallment.get().getWrittenOfDate() == null) {
+            return buildDpd(0, calculateMaxDpd(calculationDate));
+        }
+
+        int dpd = calculateWrittenOffDpdValue(writtenOffInstallment.get(), calculationDate);
+        return buildDpd(dpd, dpd);
+    }
+
+    private Optional<InstallmentV3> findWrittenOffInstallment() {
+        return installments.stream()
+                .filter(InstallmentV3::isWrittenOff)
+                .findFirst();
+    }
+
+    private int calculateWrittenOffDpdValue(InstallmentV3 writtenOffInstallment, LocalDate calculationDate) {
+        LocalDate latestMaturityDate = findLatestMaturityDateForNonGracePeriods(calculationDate);
+        LocalDate writtenOffDate = writtenOffInstallment.getWrittenOfDate();
+        return (int) java.time.temporal.ChronoUnit.DAYS.between(latestMaturityDate, writtenOffDate);
+    }
+
+    private LocalDate findLatestMaturityDateForNonGracePeriods(LocalDate defaultDate) {
+        return installments.stream()
+                .filter(this::isValidNonGracePeriod)
+                .map(InstallmentV3::getMaturityDate)
+                .max(LocalDate::compareTo)
+                .orElse(defaultDate);
+    }
+
+    private LocalDate findEarliestMaturityDate(LocalDate defaultDate) {
+        return installments.stream()
+                .filter(this::isValidNonGracePeriod)
                 .map(InstallmentV3::getMaturityDate)
                 .min(LocalDate::compareTo)
-                .orElse(calculationDate);
+                .orElse(defaultDate);
+    }
 
-        // If calculation date is before or equal to earliest maturity date, return 0
-        if (calculationDate.compareTo(earliestMaturityDate) <= 0) {
-            return Dpd.builder()
-                    .latestDpd(0)
-                    .maxDpd(0)
-                    .build();
-        }
+    private boolean isValidNonGracePeriod(InstallmentV3 installment) {
+        return !installment.isGracePeriod() && installment.getMaturityDate() != null;
+    }
 
-        // For latest DPD, find the earliest period that is not fully paid
-        Optional<InstallmentDpd> latestPeriodWithDpd = installments.stream()
+    private int findLatestDpd(LocalDate calculationDate, LocalDate earliestMaturityDate) {
+        InstallmentDpd latestPeriod = findLatestPeriodWithDpd(calculationDate, earliestMaturityDate);
+        return latestPeriod != null ? (int) latestPeriod.getDpd() : 0;
+    }
+
+    private InstallmentDpd findLatestPeriodWithDpd(LocalDate calculationDate, LocalDate earliestMaturityDate) {
+        return installments.stream()
                 .filter(installment -> !installment.isGracePeriod())
-                // Group by period and consider an installment fully paid if ANY of its entries are fully paid
                 .collect(Collectors.groupingBy(InstallmentV3::getPeriod))
                 .values().stream()
-                .filter(periodInstallments -> periodInstallments.stream().noneMatch(InstallmentV3::isFullyPaid))
-                .map(periodInstallments -> periodInstallments.get(0))
+                .map(periodInstallments -> {
+                    InstallmentV3 installment = periodInstallments.get(0);
+                    Optional<InstallmentV3> paidInstallment = findFullyPaidInstallment(periodInstallments);
+                    
+                    if (paidInstallment.isPresent() && paidInstallment.get().getRepaymentDate() != null) {
+                        LocalDate repaymentDate = paidInstallment.get().getRepaymentDate();
+                        if (repaymentDate.isAfter(calculationDate)) {
+                            // For future payments, calculate DPD from maturity to repayment date
+                            return createInstallmentDpd(
+                                paidInstallment.get(),
+                                repaymentDate,
+                                earliestMaturityDate
+                            );
+                        }
+                        return null;
+                    }
+                    
+                    if (!installment.isFullyPaid()) {
+                        return createInstallmentDpd(
+                            installment,
+                            calculationDate,
+                            earliestMaturityDate
+                        );
+                    }
+                    
+                    return null;
+                })
+                .filter(Objects::nonNull)
                 .min((a, b) -> a.getMaturityDate().compareTo(b.getMaturityDate()))
-                .map(installment -> new InstallmentDpd(
-                        installment.calculateDpd(calculationDate),
-                        installment.isFullyPaid(),
-                        installment.getMaturityDate() != null ? installment.getMaturityDate() : earliestMaturityDate,
-                        installment.getRepaymentDate(),
-                        installment.isPartiallyPaid(),
-                        false,
-                        null
-                ));
+                .orElse(null);
+    }
 
-        long latestDpd = latestPeriodWithDpd
-                .map(InstallmentDpd::getDpd)
-                .orElse(0L);
-
-        return Dpd.builder()
-                .latestDpd((int) latestDpd)
-                .maxDpd(calculateMaxDpd(calculationDate))
-                .build();
+    private InstallmentDpd createInstallmentDpd(InstallmentV3 installment, LocalDate calculationDate, LocalDate earliestMaturityDate) {
+        return new InstallmentDpd(
+                installment.calculateDpd(calculationDate),
+                installment.isFullyPaid(),
+                installment.getMaturityDate() != null ? installment.getMaturityDate() : earliestMaturityDate,
+                installment.getRepaymentDate(),
+                installment.isPartiallyPaid(),
+                false,
+                null
+        );
     }
 
     private int calculateMaxDpd(LocalDate calculationDate) {
         return installments.stream()
-                .filter(installment -> !installment.isGracePeriod())
-                .filter(installment -> installment.getMaturityDate() != null)
-                // Group by period and get the maximum DPD for each period
+                .filter(this::isValidNonGracePeriod)
                 .collect(Collectors.groupingBy(InstallmentV3::getPeriod))
                 .values().stream()
-                .map(periodInstallments -> {
-                    // If any installment in this period is fully paid, use its repayment date for DPD
-                    Optional<InstallmentV3> paidInstallment = periodInstallments.stream()
-                            .filter(InstallmentV3::isFullyPaid)
-                            .findFirst();
-                    
-                    if (paidInstallment.isPresent() && paidInstallment.get().getRepaymentDate() != null) {
-                        // For paid installments, calculate DPD based on actual repayment date
-                        return (int) java.time.temporal.ChronoUnit.DAYS.between(
-                            periodInstallments.get(0).getMaturityDate(),
-                            paidInstallment.get().getRepaymentDate()
-                        );
-                    } else {
-                        // For unpaid installments, calculate DPD based on calculation date
-                        return (int) periodInstallments.get(0).calculateDpd(calculationDate);
-                    }
-                })
+                .map(periodInstallments -> calculatePeriodDpd(periodInstallments, calculationDate))
                 .mapToInt(Integer::intValue)
                 .max()
                 .orElse(0);
+    }
+
+    private int calculatePeriodDpd(List<InstallmentV3> periodInstallments, LocalDate calculationDate) {
+        Optional<InstallmentV3> paidInstallment = findFullyPaidInstallment(periodInstallments);
+        if (paidInstallment.isPresent() && paidInstallment.get().getRepaymentDate() != null) {
+            return calculatePaidInstallmentDpd(periodInstallments.get(0), paidInstallment.get());
+        }
+        return (int) periodInstallments.get(0).calculateDpd(calculationDate);
+    }
+
+    private Optional<InstallmentV3> findFullyPaidInstallment(List<InstallmentV3> periodInstallments) {
+        return periodInstallments.stream()
+                .filter(InstallmentV3::isFullyPaid)
+                .findFirst();
+    }
+
+    private int calculatePaidInstallmentDpd(InstallmentV3 firstInstallment, InstallmentV3 paidInstallment) {
+        return (int) java.time.temporal.ChronoUnit.DAYS.between(
+                firstInstallment.getMaturityDate(),
+                paidInstallment.getRepaymentDate()
+        );
+    }
+
+    private Dpd buildDpd(int latestDpd, int maxDpd) {
+        return Dpd.builder()
+                .latestDpd(latestDpd)
+                .maxDpd(maxDpd)
+                .build();
     }
 
     @Value
