@@ -15,6 +15,7 @@ public class InstallmentV3 {
     private RepaymentStatus repaymentStatus;
     private LocalDate repaymentDate;
     private LocalDate writtenOfDate;
+    private Integer period;
 
     public boolean isGracePeriod() {
         return amount != null && BigDecimal.ZERO.compareTo(amount) == 0 && repaymentStatus == RepaymentStatus.GRACE_PERIOD;

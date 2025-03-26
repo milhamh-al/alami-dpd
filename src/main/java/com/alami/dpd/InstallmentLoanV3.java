@@ -7,6 +7,7 @@ import lombok.Value;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -66,7 +67,11 @@ public class InstallmentLoanV3 {
         // For latest DPD, find the earliest period that is not fully paid
         Optional<InstallmentDpd> latestPeriodWithDpd = installments.stream()
                 .filter(installment -> !installment.isGracePeriod())
-                .filter(installment -> !installment.isFullyPaid() || installment.isPartiallyPaid())
+                // Group by period and consider an installment fully paid if ANY of its entries are fully paid
+                .collect(Collectors.groupingBy(InstallmentV3::getPeriod))
+                .values().stream()
+                .filter(periodInstallments -> periodInstallments.stream().noneMatch(InstallmentV3::isFullyPaid))
+                .map(periodInstallments -> periodInstallments.get(0))
                 .min((a, b) -> a.getMaturityDate().compareTo(b.getMaturityDate()))
                 .map(installment -> new InstallmentDpd(
                         installment.calculateDpd(calculationDate),
@@ -91,15 +96,28 @@ public class InstallmentLoanV3 {
     private int calculateMaxDpd(LocalDate calculationDate) {
         return installments.stream()
                 .filter(installment -> !installment.isGracePeriod())
-                .mapToInt(installment -> (int) installment.calculateDpd(calculationDate))
-                .max()
-                .orElse(0);
-    }
-
-    public long calculateMaxHistoricalDpd(List<LocalDate> historicalDates) {
-        return historicalDates.stream()
-                .map(this::calculateLatestDpd)
-                .mapToInt(Dpd::getMaxDpd)
+                .filter(installment -> installment.getMaturityDate() != null)
+                // Group by period and get the maximum DPD for each period
+                .collect(Collectors.groupingBy(InstallmentV3::getPeriod))
+                .values().stream()
+                .map(periodInstallments -> {
+                    // If any installment in this period is fully paid, use its repayment date for DPD
+                    Optional<InstallmentV3> paidInstallment = periodInstallments.stream()
+                            .filter(InstallmentV3::isFullyPaid)
+                            .findFirst();
+                    
+                    if (paidInstallment.isPresent() && paidInstallment.get().getRepaymentDate() != null) {
+                        // For paid installments, calculate DPD based on actual repayment date
+                        return (int) java.time.temporal.ChronoUnit.DAYS.between(
+                            periodInstallments.get(0).getMaturityDate(),
+                            paidInstallment.get().getRepaymentDate()
+                        );
+                    } else {
+                        // For unpaid installments, calculate DPD based on calculation date
+                        return (int) periodInstallments.get(0).calculateDpd(calculationDate);
+                    }
+                })
+                .mapToInt(Integer::intValue)
                 .max()
                 .orElse(0);
     }

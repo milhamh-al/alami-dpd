@@ -17,30 +17,35 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-01-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-03-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-04-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -65,31 +70,36 @@ class InstallmentV3Test {
         InstallmentV3 installment1 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
-                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .repaymentStatus(RepaymentStatus.PAID)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-01-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-03-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-04-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -115,30 +125,35 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-01-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
-                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .repaymentStatus(RepaymentStatus.PAID)
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-03-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-04-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -162,32 +177,37 @@ class InstallmentV3Test {
     void testCase4() {
         InstallmentV3 installment1 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2024-12-20"))
-                .amount(BigDecimal.ZERO)
-                .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.PAID)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-01-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
-                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .repaymentStatus(RepaymentStatus.PAID)
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
-                .amount(BigDecimal.ZERO)
-                .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.PAID)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-03-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-04-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -213,30 +233,35 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-01-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-03-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-04-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -262,30 +287,35 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-01-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-03-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-04-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -311,6 +341,7 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
@@ -319,24 +350,28 @@ class InstallmentV3Test {
                 .paidAmount(BigDecimal.valueOf(25_000_000))
                 .repaymentStatus(RepaymentStatus.PARTIAL_REPAYMENT)
                 .repaymentDate(LocalDate.parse("2025-01-25"))
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-03-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-04-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -362,6 +397,7 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
@@ -370,24 +406,28 @@ class InstallmentV3Test {
                 .paidAmount(BigDecimal.valueOf(25_000_000))
                 .repaymentStatus(RepaymentStatus.PARTIAL_REPAYMENT)
                 .repaymentDate(LocalDate.parse("2025-01-25"))
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-03-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-04-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -414,6 +454,7 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
@@ -422,6 +463,7 @@ class InstallmentV3Test {
                 .paidAmount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.PAID)
                 .repaymentDate(LocalDate.parse("2025-01-25"))
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
@@ -429,6 +471,7 @@ class InstallmentV3Test {
                 .amount(BigDecimal.ZERO)
                 .paidAmount(null)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
@@ -436,6 +479,7 @@ class InstallmentV3Test {
                 .amount(BigDecimal.valueOf(50_000_000))
                 .paidAmount(null)
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
@@ -443,6 +487,7 @@ class InstallmentV3Test {
                 .amount(BigDecimal.valueOf(50_000_000))
                 .paidAmount(null)
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -468,6 +513,7 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
@@ -476,6 +522,7 @@ class InstallmentV3Test {
                 .paidAmount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.PAID)
                 .repaymentDate(LocalDate.parse("2025-01-25"))
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
@@ -483,6 +530,7 @@ class InstallmentV3Test {
                 .amount(BigDecimal.ZERO)
                 .paidAmount(null)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
@@ -491,6 +539,7 @@ class InstallmentV3Test {
                 .paidAmount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.PAID)
                 .repaymentDate(LocalDate.parse("2025-04-20"))
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
@@ -498,6 +547,7 @@ class InstallmentV3Test {
                 .amount(BigDecimal.valueOf(50_000_000))
                 .paidAmount(null)
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -518,6 +568,7 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
@@ -526,6 +577,7 @@ class InstallmentV3Test {
                 .paidAmount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.PAID)
                 .repaymentDate(LocalDate.parse("2025-01-25"))
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
@@ -533,6 +585,7 @@ class InstallmentV3Test {
                 .amount(BigDecimal.ZERO)
                 .paidAmount(null)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
@@ -541,6 +594,7 @@ class InstallmentV3Test {
                 .paidAmount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.PAID)
                 .repaymentDate(LocalDate.parse("2025-04-30"))
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
@@ -549,6 +603,7 @@ class InstallmentV3Test {
                 .paidAmount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.PAID)
                 .repaymentDate(LocalDate.parse("2025-05-05"))
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -570,6 +625,7 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.ZERO)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
@@ -578,6 +634,7 @@ class InstallmentV3Test {
                 .paidAmount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.PAID)
                 .repaymentDate(LocalDate.parse("2025-01-25"))
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
@@ -585,6 +642,7 @@ class InstallmentV3Test {
                 .amount(BigDecimal.ZERO)
                 .paidAmount(null)
                 .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
@@ -593,17 +651,20 @@ class InstallmentV3Test {
                 .paidAmount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.PAID)
                 .repaymentDate(LocalDate.parse("2025-04-30"))
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-04-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentV3 installment6 = InstallmentV3.builder()
                 .repaymentStatus(RepaymentStatus.WRITE_OFF)
                 .writtenOfDate(LocalDate.parse("2025-08-01"))
+                .period(6)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -626,30 +687,35 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-01-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-03-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-04-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -675,30 +741,35 @@ class InstallmentV3Test {
                 .maturityDate(LocalDate.parse("2024-12-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(1)
                 .build();
 
         InstallmentV3 installment2 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-01-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(2)
                 .build();
 
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(3)
                 .build();
 
         InstallmentV3 installment4 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-03-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
                 .build();
 
         InstallmentV3 installment5 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-04-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
                 .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
                 .build();
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
@@ -716,5 +787,137 @@ class InstallmentV3Test {
         Dpd dpd = loan.calculateLatestDpd(calculationDate);
         assertEquals(36, dpd.getLatestDpd());
         assertEquals(36, dpd.getMaxDpd());
+    }
+
+    @Test
+    void testCase15() {
+        InstallmentV3 installment1 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2024-12-20"))
+                .amount(BigDecimal.ZERO)
+                .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(1)
+                .build();
+
+        InstallmentV3 installment2 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-01-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.PARTIAL_REPAYMENT)
+                .repaymentDate(LocalDate.parse("2025-01-24"))
+                .paidAmount(BigDecimal.valueOf(25_000_000))
+                .period(2)
+                .build();
+
+        InstallmentV3 installment21 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-01-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.PAID)
+                .repaymentDate(LocalDate.parse("2025-02-19"))
+                .paidAmount(BigDecimal.valueOf(25_000_000))
+                .period(2)
+                .build();
+
+        InstallmentV3 installment3 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-02-20"))
+                .amount(BigDecimal.ZERO)
+                .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(3)
+                .build();
+
+        InstallmentV3 installment4 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-03-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
+                .build();
+
+        InstallmentV3 installment5 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-04-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
+                .build();
+
+        InstallmentLoanV3 loan = InstallmentLoanV3.builder()
+                .installments(
+                        Arrays.asList(
+                                installment1, 
+                                installment2,
+                                installment21,
+                                installment3,
+                                installment4,
+                                installment5
+                                ))
+                .build();
+
+        LocalDate calculationDate = LocalDate.parse("2025-04-24");
+        Dpd dpd = loan.calculateLatestDpd(calculationDate);
+        assertEquals(35, dpd.getLatestDpd());
+        assertEquals(35, dpd.getMaxDpd());
+    }
+
+    @Test
+    void testCase16() {
+        InstallmentV3 installment1 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2024-12-20"))
+                .amount(BigDecimal.ZERO)
+                .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(1)
+                .build();
+
+        InstallmentV3 installment2 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-01-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.PARTIAL_REPAYMENT)
+                .repaymentDate(LocalDate.parse("2025-01-24"))
+                .paidAmount(BigDecimal.valueOf(25_000_000))
+                .period(2)
+                .build();
+
+        InstallmentV3 installment21 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-01-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.PAID)
+                .repaymentDate(LocalDate.parse("2025-02-19"))
+                .paidAmount(BigDecimal.valueOf(25_000_000))
+                .period(2)
+                .build();
+
+        InstallmentV3 installment3 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-02-20"))
+                .amount(BigDecimal.ZERO)
+                .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
+                .period(3)
+                .build();
+
+        InstallmentV3 installment4 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-03-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(4)
+                .build();
+
+        InstallmentV3 installment5 = InstallmentV3.builder()
+                .maturityDate(LocalDate.parse("2025-04-20"))
+                .amount(BigDecimal.valueOf(50_000_000))
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
+                .period(5)
+                .build();
+
+        InstallmentLoanV3 loan = InstallmentLoanV3.builder()
+                .installments(
+                        Arrays.asList(
+                                installment1, 
+                                installment2,
+                                installment21,
+                                installment3,
+                                installment4,
+                                installment5
+                                ))
+                .build();
+
+        LocalDate calculationDate = LocalDate.parse("2025-03-24");
+        Dpd dpd = loan.calculateLatestDpd(calculationDate);
+        assertEquals(4, dpd.getLatestDpd());
+        assertEquals(30, dpd.getMaxDpd());
     }
 }
