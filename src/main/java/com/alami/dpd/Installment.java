@@ -1,6 +1,7 @@
 package com.alami.dpd;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -19,8 +20,20 @@ public class Installment {
             && loan.getBenefPaymentAmount().compareTo(loan.getAmount()) >= 0;
     }
 
+    private LocalDate findLastMaturityDate(List<InstallmentLoan> loans) {
+        return loans.stream()
+            .map(InstallmentLoan::getMaturityDate)
+            .max(LocalDate::compareTo)
+            .orElse(null);
+    }
+
     private boolean isAfterMaturity(InstallmentLoan loan) {
         return loan.getToday().isAfter(loan.getMaturityDate());
+    }
+
+    private boolean isInFinalPeriod(InstallmentLoan loan, List<InstallmentLoan> allLoans) {
+        LocalDate lastMaturityDate = findLastMaturityDate(allLoans);
+        return !loan.getToday().isBefore(lastMaturityDate);
     }
 
     private boolean isPeriodFullyPaid(InstallmentLoan loan, BigDecimal totalPayments) {
@@ -75,8 +88,31 @@ public class Installment {
 
     // Main Method
     public List<InstallmentLoan> calculateV4(List<InstallmentLoan> installmentLoans) {
-        int maxDpdSoFar = 0;
+        LocalDate lastMaturityDate = findLastMaturityDate(installmentLoans);
         
+        // If we're past all maturity dates, only calculate DPD for the last period
+        if (installmentLoans.get(0).getToday().isAfter(lastMaturityDate)) {
+            // Set all previous periods to zero DPD
+            for (int i = 0; i < installmentLoans.size() - 1; i++) {
+                setZeroDpd(installmentLoans.get(i));
+            }
+            
+            // Calculate DPD only for the last period
+            InstallmentLoan lastLoan = installmentLoans.get(installmentLoans.size() - 1);
+            if (isGracePeriod(lastLoan)) {
+                setZeroDpd(lastLoan);
+            } else if (isRegularFullPayment(lastLoan)) {
+                setDpdForCompletedPeriod(lastLoan);
+            } else {
+                int dpd = (int) ChronoUnit.DAYS.between(lastLoan.getMaturityDate(), lastLoan.getToday());
+                lastLoan.setLatestDpd(dpd);
+                lastLoan.setMaxDpd(dpd);
+            }
+            return installmentLoans;
+        }
+        
+        // Normal case - not past all maturity dates
+        int maxDpdSoFar = 0;
         for (InstallmentLoan loan : installmentLoans) {
             if (isGracePeriod(loan)) {
                 setZeroDpd(loan);

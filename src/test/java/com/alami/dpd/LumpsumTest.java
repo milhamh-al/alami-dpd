@@ -25,7 +25,7 @@ public class LumpsumTest {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = null;
             LocalDate today = LocalDate.of(2024, 12, 3);
-            Status status = Status.DISBURSEMENT;
+            RepaymentStatus status = RepaymentStatus.NOT_PAID;
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -37,8 +37,8 @@ public class LumpsumTest {
                     .build()
             );
 
-            assertEquals(0, dpd.getDpdTerakhir());
-            assertEquals(0, dpd.getDpdMax());
+            assertEquals(0, dpd.getLatestDpd());
+            assertEquals(0, dpd.getMaxDpd());
         }
 
         @Test
@@ -47,7 +47,7 @@ public class LumpsumTest {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = LocalDate.of(2024, 12, 20);
             LocalDate today = LocalDate.of(2024, 12, 20);
-            Status status = Status.READY_FOR_REPAYMENT;
+            RepaymentStatus status = RepaymentStatus.PAID;
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -59,8 +59,8 @@ public class LumpsumTest {
                     .build()
             );
 
-            assertEquals(0, dpd.getDpdTerakhir());
-            assertEquals(0, dpd.getDpdMax());
+            assertEquals(0, dpd.getLatestDpd());
+            assertEquals(0, dpd.getMaxDpd());
         }
     }
 
@@ -72,7 +72,7 @@ public class LumpsumTest {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = null;
             LocalDate today = LocalDate.of(2024, 12, 24);
-            Status status = Status.DISBURSEMENT;
+            RepaymentStatus status = RepaymentStatus.NOT_PAID;
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -84,16 +84,17 @@ public class LumpsumTest {
                     .build()
             );
             
-            assertEquals(0, dpd.getDpdTerakhir());
+            assertEquals(0, dpd.getLatestDpd());
+            assertEquals(0, dpd.getMaxDpd());
         }
 
         @Test
-        @DisplayName("case 6: equal maturity date, not paid off")
+        @DisplayName("case 6: equal maturity date, paid off")
         void paid() {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = LocalDate.of(2024, 12, 24);
             LocalDate today = LocalDate.of(2024, 12, 24);
-            Status status = Status.READY_FOR_REPAYMENT;
+            RepaymentStatus status = RepaymentStatus.PAID;
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -105,7 +106,8 @@ public class LumpsumTest {
                     .build()
             );
             
-            assertEquals(0, dpd.getDpdTerakhir());
+            assertEquals(0, dpd.getLatestDpd());
+            assertEquals(0, dpd.getMaxDpd());
         }
     }
 
@@ -117,7 +119,7 @@ public class LumpsumTest {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = null;
             LocalDate today = LocalDate.of(2024, 12, 31);
-            Status status = Status.DISBURSEMENT;
+            RepaymentStatus status = RepaymentStatus.NOT_PAID;
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -129,7 +131,8 @@ public class LumpsumTest {
                     .build()
             );
             
-            assertEquals(7, dpd.getDpdTerakhir());
+            assertEquals(7, dpd.getLatestDpd());
+            assertEquals(7, dpd.getMaxDpd());
         }
 
         @Test
@@ -138,7 +141,7 @@ public class LumpsumTest {
             LocalDate maturityDate = LocalDate.of(2024, 12, 24);
             LocalDate repaymentDate = LocalDate.of(2024, 12, 31);
             LocalDate today = LocalDate.of(2024, 12, 31);
-            Status status = Status.READY_FOR_REPAYMENT;
+            RepaymentStatus status = RepaymentStatus.PAID;
 
             Dpd dpd = lumpsum.calculate(
                 LumpsumLoan
@@ -150,7 +153,8 @@ public class LumpsumTest {
                     .build()
             );
             
-            assertEquals(7, dpd.getDpdTerakhir());
+            assertEquals(0, dpd.getLatestDpd());
+            assertEquals(0, dpd.getMaxDpd());
         }
     }
 }

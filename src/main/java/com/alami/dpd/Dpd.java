@@ -5,11 +5,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@AllArgsConstructor
 @Getter
-@Setter
 @Builder
+@Setter
+@AllArgsConstructor
 public class Dpd {
-    private Integer dpdTerakhir;
-    private Integer dpdMax;
+    private int latestDpd;
+    private int maxDpd;
 }

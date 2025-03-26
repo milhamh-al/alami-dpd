@@ -1042,5 +1042,108 @@ public class InstallmentTest {
             assertEquals(5, res.get(1).getLatestDpd());
             assertEquals(11, res.get(1).getMaxDpd());
         }
-    }    
+    
+        @Nested
+        class PastAllMaturityDates {
+            @Test
+            @DisplayName("""
+                Past All Maturity Dates
+                - today = 2025-04-30
+                - period 1 (2024-12-20): Grace Period
+                - period 2 (2025-01-20): Paid on 2025-01-25
+                - period 3 (2025-02-20): Grace Period
+                - period 4 (2025-03-20): Not Paid
+                - period 5 (2025-04-20): Not Paid
+                """)
+            void past_all_maturity_dates() {
+                List<InstallmentLoan> installmentLoans = new ArrayList<>();
+    
+                // Period 1 - Grace Period
+                InstallmentLoan loan1 = InstallmentLoan.builder()
+                    .period(1)
+                    .maturityDate(LocalDate.of(2024, 12, 20))
+                    .amount(BigDecimal.ZERO)
+                    .benefPaymentAmount(null)
+                    .repaymentDate(null)
+                    .status(Status.DISBURSEMENT)
+                    .today(LocalDate.of(2025, 4, 30))
+                    .isPartialInstallment(false)
+                    .build();
+    
+                // Period 2 - Paid
+                InstallmentLoan loan2 = InstallmentLoan.builder()
+                    .period(2)
+                    .maturityDate(LocalDate.of(2025, 1, 20))
+                    .amount(BigDecimal.valueOf(50_000_000))
+                    .benefPaymentAmount(BigDecimal.valueOf(50_000_000))
+                    .repaymentDate(LocalDate.of(2025, 1, 25))
+                    .status(Status.PARTIAL_REPAYMENT_SUCCESS)
+                    .today(LocalDate.of(2025, 4, 30))
+                    .isPartialInstallment(false)
+                    .build();
+    
+                // Period 3 - Grace Period
+                InstallmentLoan loan3 = InstallmentLoan.builder()
+                    .period(3)
+                    .maturityDate(LocalDate.of(2025, 2, 20))
+                    .amount(BigDecimal.ZERO)
+                    .benefPaymentAmount(null)
+                    .repaymentDate(null)
+                    .status(Status.DISBURSEMENT)
+                    .today(LocalDate.of(2025, 4, 30))
+                    .isPartialInstallment(false)
+                    .build();
+    
+                // Period 4 - Not Paid
+                InstallmentLoan loan4 = InstallmentLoan.builder()
+                    .period(4)
+                    .maturityDate(LocalDate.of(2025, 3, 20))
+                    .amount(BigDecimal.valueOf(50_000_000))
+                    .benefPaymentAmount(null)
+                    .repaymentDate(null)
+                    .status(Status.DISBURSEMENT)
+                    .today(LocalDate.of(2025, 4, 30))
+                    .isPartialInstallment(false)
+                    .build();
+    
+                // Period 5 - Not Paid
+                InstallmentLoan loan5 = InstallmentLoan.builder()
+                    .period(5)
+                    .maturityDate(LocalDate.of(2025, 4, 20))
+                    .amount(BigDecimal.valueOf(50_000_000))
+                    .benefPaymentAmount(null)
+                    .repaymentDate(null)
+                    .status(Status.DISBURSEMENT)
+                    .today(LocalDate.of(2025, 4, 30))
+                    .isPartialInstallment(false)
+                    .build();
+    
+                installmentLoans.add(loan1);
+                installmentLoans.add(loan2);
+                installmentLoans.add(loan3);
+                installmentLoans.add(loan4);
+                installmentLoans.add(loan5);
+    
+                List<InstallmentLoan> res = installment.calculateV4(installmentLoans);
+    
+                // When past all maturity dates, only calculate DPD from last period
+                // All previous periods should have DPD = 0 since they don't matter anymore
+                assertEquals(0, res.get(0).getLatestDpd());
+                assertEquals(0, res.get(0).getMaxDpd());
+    
+                assertEquals(0, res.get(1).getLatestDpd());
+                assertEquals(0, res.get(1).getMaxDpd());
+    
+                assertEquals(0, res.get(2).getLatestDpd());
+                assertEquals(0, res.get(2).getMaxDpd());
+    
+                assertEquals(0, res.get(3).getLatestDpd());
+                assertEquals(0, res.get(3).getMaxDpd());
+    
+                // Only last period has DPD (10 days from 2025-04-20 to 2025-04-30)
+                assertEquals(10, res.get(4).getLatestDpd());
+                assertEquals(10, res.get(4).getMaxDpd());
+            }
+        }
+    }
 }

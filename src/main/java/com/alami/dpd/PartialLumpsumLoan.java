@@ -1,5 +1,6 @@
 package com.alami.dpd;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
@@ -13,8 +14,10 @@ import lombok.Setter;
 @Builder
 public class PartialLumpsumLoan {
     Integer period;
+    private BigDecimal amount;
+    private BigDecimal benefPaymentAmount;
     LocalDate maturityDate;
     LocalDate repaymentDate;
     LocalDate today;
-    Status status;
+    RepaymentStatus status;
 }

@@ -15,5 +15,5 @@ public class LumpsumLoan {
     LocalDate repaymentDate;
     LocalDate maturityDate;
     LocalDate today;
-    Status status;
+    RepaymentStatus status;
 }
