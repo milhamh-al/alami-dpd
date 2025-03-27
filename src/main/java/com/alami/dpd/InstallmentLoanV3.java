@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +29,12 @@ public class InstallmentLoanV3 {
             return calculateWrittenOffDpd(calculationDate);
         }
 
-        LocalDate earliestMaturityDate = findEarliestMaturityDate(calculationDate);
+        LocalDate earliestMaturityDate = installments.stream()
+                .map(InstallmentV3::getMaturityDate)
+                .filter(Objects::nonNull)
+                .min(LocalDate::compareTo)
+                .orElse(calculationDate);
+
         if (calculationDate.compareTo(earliestMaturityDate) <= 0) {
             return buildDpd(0, 0);
         }
@@ -64,23 +68,10 @@ public class InstallmentLoanV3 {
 
     private LocalDate findLatestMaturityDateForNonGracePeriods(LocalDate defaultDate) {
         return installments.stream()
-                .filter(this::isValidNonGracePeriod)
                 .map(InstallmentV3::getMaturityDate)
+                .filter(Objects::nonNull)
                 .max(LocalDate::compareTo)
                 .orElse(defaultDate);
-    }
-
-    private LocalDate findEarliestMaturityDate(LocalDate defaultDate) {
-        return installments.stream()
-                .filter(this::isValidNonGracePeriod)
-                .map(InstallmentV3::getMaturityDate)
-                .min(LocalDate::compareTo)
-                .orElse(defaultDate);
-    }
-
-    private boolean isValidNonGracePeriod(InstallmentV3 installment) {
-        return installment.getMaturityDate() != null
-            && installment.getAmount().compareTo(BigDecimal.ZERO) > 0;
     }
 
     private int findLatestDpd(LocalDate calculationDate, LocalDate earliestMaturityDate) {
@@ -187,7 +178,6 @@ public class InstallmentLoanV3 {
 
     private int calculateMaxDpd(LocalDate calculationDate) {
         return installments.stream()
-                .filter(this::isValidNonGracePeriod)
                 .collect(Collectors.groupingBy(InstallmentV3::getPeriod))
                 .values().stream()
                 .map(periodInstallments -> calculatePeriodDpd(periodInstallments, calculationDate))
