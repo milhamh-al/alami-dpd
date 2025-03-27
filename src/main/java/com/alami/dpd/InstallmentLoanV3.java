@@ -18,6 +18,14 @@ public class InstallmentLoanV3 {
     private Status status;
 
     public Dpd calculateLatestDpd(LocalDate calculationDate) {
+        // Filter out grace period installments first
+        List<InstallmentV3> validInstallments = installments.stream()
+                .filter(installment -> !installment.isGracePeriod())
+                .collect(Collectors.toList());
+
+        // Update installments list to exclude grace periods
+        this.installments = validInstallments;
+
         if (status == Status.WRITE_OFF) {
             return calculateWrittenOffDpd(calculationDate);
         }
@@ -71,9 +79,7 @@ public class InstallmentLoanV3 {
     }
 
     private boolean isValidNonGracePeriod(InstallmentV3 installment) {
-        return !installment.isGracePeriod() 
-            && installment.getMaturityDate() != null
-            && installment.getAmount() != null 
+        return installment.getMaturityDate() != null
             && installment.getAmount().compareTo(BigDecimal.ZERO) > 0;
     }
 
@@ -84,14 +90,14 @@ public class InstallmentLoanV3 {
 
     private InstallmentDpd findLatestPeriodWithDpd(LocalDate calculationDate, LocalDate earliestMaturityDate) {
         var res = installments.stream()
-                .filter(installment -> !installment.isGracePeriod())
                 .collect(Collectors.groupingBy(InstallmentV3::getPeriod))
                 .values().stream()
                 .map(periodInstallments -> {
-                    InstallmentV3 installment = periodInstallments.get(0);
-                    Optional<InstallmentV3> paidInstallment = findFullyPaidInstallment(periodInstallments);
-                    
-                    if (paidInstallment.isPresent() && paidInstallment.get().getRepaymentDate() != null) {
+                    Optional<InstallmentV3> paidInstallment = periodInstallments.stream()
+                            .filter(InstallmentV3::isFullyPaid)
+                            .findFirst();
+
+                    if (paidInstallment.isPresent()) {
                         LocalDate repaymentDate = paidInstallment.get().getRepaymentDate();
                         LocalDate maturityDate = paidInstallment.get().getMaturityDate();
                         
@@ -105,7 +111,7 @@ public class InstallmentLoanV3 {
                         }
                         return null;
                     }
-                    
+                    InstallmentV3 installment = periodInstallments.get(0);
                     if (!installment.isFullyPaid()) {
                         return createInstallmentDpd(
                             installment,
@@ -147,7 +153,7 @@ public class InstallmentLoanV3 {
                                     })
                                     .count();
                             
-                            // If there are multiple NOT_PAID periods with DPD > 0, return highest DPD
+                            // If there are multiple NOT_PAID periods with DPD > 0
                             // Otherwise, return its DPD
                             if (notPaidCount > 1) {
                                 return Long.compare(a.getDpd(), b.getDpd());
@@ -156,12 +162,11 @@ public class InstallmentLoanV3 {
                             }
                         }
                         
-                        // Otherwise (both are PAID or single NOT_PAID), return latest period
-                        return Integer.compare(installmentA.getPeriod(), installmentB.getPeriod());
+                        // If both are PAID, compare by maturity date
+                        return a.getMaturityDate().compareTo(b.getMaturityDate());
                     }
                     
-                    // Fallback to maturity date comparison
-                    return a.getMaturityDate().compareTo(b.getMaturityDate());
+                    return 0;
                 })
                 .orElse(null);
 
@@ -186,7 +191,8 @@ public class InstallmentLoanV3 {
                 .collect(Collectors.groupingBy(InstallmentV3::getPeriod))
                 .values().stream()
                 .map(periodInstallments -> calculatePeriodDpd(periodInstallments, calculationDate))
-                .mapToInt(Integer::intValue)
+                .filter(Objects::nonNull)
+                .mapToInt(dpd -> dpd.intValue())
                 .max()
                 .orElse(0);
     }
