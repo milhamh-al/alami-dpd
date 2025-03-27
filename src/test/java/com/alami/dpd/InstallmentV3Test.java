@@ -1,6 +1,7 @@
 package com.alami.dpd;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -11,7 +12,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class InstallmentV3Test {
 
-    @Test
+    @Nested
+    class TestCaseSSOT {
+        @Test
     @DisplayName("""
         Calculate DPD when calculation date (2024-12-03) < maturity date 1st period
         PERIOD 1: maturity=2024-12-20, status=NOT_PAID
@@ -874,6 +877,7 @@ class InstallmentV3Test {
                                 installment4,
                                 installment5
                                 ))
+                .status(Status.DISBURSEMENT)
                 .build();
 
         LocalDate calculationDate = LocalDate.parse("2024-12-21");
@@ -938,6 +942,7 @@ class InstallmentV3Test {
                                 installment4,
                                 installment5
                                 ))
+                .status(Status.DISBURSEMENT)
                 .build();
 
         LocalDate calculationDate = LocalDate.parse("2025-01-25");
@@ -1016,11 +1021,13 @@ class InstallmentV3Test {
                                 installment4,
                                 installment5
                                 ))
+                .status(Status.PARTIAL_REPAYMENT_SUCCESS)
                 .build();
 
         LocalDate calculationDate = LocalDate.parse("2025-04-24");
         Dpd dpd = loan.calculateLatestDpd(calculationDate);
         assertEquals(35, dpd.getLatestDpd());
         assertEquals(35, dpd.getMaxDpd());
+    }
     }
 }
