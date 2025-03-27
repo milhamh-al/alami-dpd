@@ -527,6 +527,7 @@ class InstallmentV3Test {
                                 installment4,
                                 installment5
                                 ))
+                .status(Status.PARTIAL_REPAYMENT_SUCCESS)
                 .build();
 
         LocalDate calculationDate = LocalDate.parse("2025-04-30");
