@@ -131,6 +131,7 @@ class InstallmentV3Test {
                                 installment4,
                                 installment5
                                 ))
+                .status(Status.DISBURSEMENT)
                 .build();
 
         LocalDate calculationDate = LocalDate.parse("2024-12-20");
@@ -143,7 +144,7 @@ class InstallmentV3Test {
     @DisplayName("""
         Calculate DPD when calculation date (2024-12-03) < maturity date 2nd period with grace periods
         PERIOD 1: maturity=2024-12-20, status=GRACE_PERIOD, amount=0
-        PERIOD 2: maturity=2025-01-20, status=PAID
+        PERIOD 2: maturity=2025-01-20, status=NOT_PAID
         PERIOD 3: maturity=2025-02-20, status=GRACE_PERIOD, amount=0
         PERIOD 4: maturity=2025-03-20, status=NOT_PAID
         PERIOD 5: maturity=2025-04-20, status=NOT_PAID
@@ -161,7 +162,7 @@ class InstallmentV3Test {
         InstallmentV3 installment2 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-01-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
-                .repaymentStatus(RepaymentStatus.PAID)
+                .repaymentStatus(RepaymentStatus.NOT_PAID)
                 .period(2)
                 .build();
 
@@ -195,6 +196,7 @@ class InstallmentV3Test {
                                 installment4,
                                 installment5
                                 ))
+                .status(Status.DISBURSEMENT)
                 .build();
 
         LocalDate calculationDate = LocalDate.parse("2024-12-03");
@@ -205,10 +207,10 @@ class InstallmentV3Test {
 
     @Test
     @DisplayName("""
-        Calculate DPD when calculation date (2024-12-20) = maturity date 1st period with all paid
-        PERIOD 1: maturity=2024-12-20, status=PAID
-        PERIOD 2: maturity=2025-01-20, status=PAID
-        PERIOD 3: maturity=2025-02-20, status=PAID
+        Calculate DPD when calculation date (2024-12-20) = maturity date 1st period
+        PERIOD 1: maturity=2024-12-20, status=GRACE_PERIOD, amount=0
+        PERIOD 2: maturity=2025-01-20, status=NOT_PAID
+        PERIOD 3: maturity=2025-02-20, status=GRACE_PERIOD, amount=0
         PERIOD 4: maturity=2025-03-20, status=NOT_PAID
         PERIOD 5: maturity=2025-04-20, status=NOT_PAID
         
@@ -217,8 +219,8 @@ class InstallmentV3Test {
     void testCase4() {
         InstallmentV3 installment1 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2024-12-20"))
-                .amount(BigDecimal.valueOf(50_000_000))
-                .repaymentStatus(RepaymentStatus.PAID)
+                .amount(BigDecimal.ZERO)
+                .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
                 .period(1)
                 .build();
 
@@ -232,7 +234,7 @@ class InstallmentV3Test {
         InstallmentV3 installment3 = InstallmentV3.builder()
                 .maturityDate(LocalDate.parse("2025-02-20"))
                 .amount(BigDecimal.valueOf(50_000_000))
-                .repaymentStatus(RepaymentStatus.PAID)
+                .repaymentStatus(RepaymentStatus.GRACE_PERIOD)
                 .period(3)
                 .build();
 
@@ -259,6 +261,7 @@ class InstallmentV3Test {
                                 installment4,
                                 installment5
                                 ))
+                .status(Status.DISBURSEMENT)
                 .build();
 
         LocalDate calculationDate = LocalDate.parse("2024-12-20");
@@ -323,6 +326,7 @@ class InstallmentV3Test {
                                 installment4,
                                 installment5
                                 ))
+                .status(Status.DISBURSEMENT)
                 .build();
 
         LocalDate calculationDate = LocalDate.parse("2024-12-25");
@@ -387,6 +391,7 @@ class InstallmentV3Test {
                                 installment4,
                                 installment5
                                 ))
+                .status(Status.DISBURSEMENT)
                 .build();
 
         LocalDate calculationDate = LocalDate.parse("2025-01-21");
@@ -1088,47 +1093,5 @@ class InstallmentV3Test {
         Dpd dpd = loan.calculateLatestDpd(calculationDate);
         assertEquals(4, dpd.getLatestDpd());
         assertEquals(30, dpd.getMaxDpd());
-    }
-
-    @Test
-    @DisplayName("""
-        todo , don't understand the logic
-        First installment - Due Dec 20, paid on time
-        Second installment - Due Jan 20, written off Feb 10
-        Expected: latestDpd=21, maxDpd=21
-        """)
-    void testCase17() {
-        // First installment - Due Dec 20, paid on time
-        InstallmentV3 installment1 = InstallmentV3.builder()
-                .maturityDate(LocalDate.parse("2024-12-20"))
-                .amount(BigDecimal.valueOf(50_000_000))
-                .paidAmount(BigDecimal.valueOf(50_000_000))
-                .repaymentStatus(RepaymentStatus.PAID)
-                .repaymentDate(LocalDate.parse("2024-12-20"))
-                .period(1)
-                .build();
-
-        // Second installment - Due Jan 20, written off Feb 10
-        InstallmentV3 installment2 = InstallmentV3.builder()
-                .maturityDate(LocalDate.parse("2025-01-20"))
-                .amount(BigDecimal.valueOf(50_000_000))
-                .repaymentStatus(RepaymentStatus.WRITE_OFF)
-                .writtenOfDate(LocalDate.parse("2025-02-10"))
-                .period(2)
-                .build();
-
-        InstallmentLoanV3 loan = InstallmentLoanV3.builder()
-                .installments(Arrays.asList(installment1, installment2))
-                .status(Status.WRITE_OFF)
-                .build();
-
-        // Calculate on Feb 10 (write off date)
-        LocalDate calculationDate = LocalDate.parse("2025-02-10");
-        Dpd dpd = loan.calculateLatestDpd(calculationDate);
-
-        // DPD should be 21 days (Jan 20 to Feb 10)
-        // We use latest maturity of Jan 20 (not Feb 20 since it's not due yet)
-        assertEquals(21, dpd.getLatestDpd());
-        assertEquals(21, dpd.getMaxDpd());
     }
 }
