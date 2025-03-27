@@ -674,7 +674,7 @@ class InstallmentV3Test {
 
     @Test
     @DisplayName("""
-        Calculate DPD when calculation date (2025-04-30) > maturity date 5th period
+        Calculate DPD when calculation date (2025-05-05) > maturity date 5th period
         With late payments and REPAYMENT_SUCCESS status
         PERIOD 1: maturity=2024-12-20, status=GRACE_PERIOD, amount=0
         PERIOD 2: maturity=2025-01-20, status=PAID, repaymentDate=2025-01-25
@@ -729,12 +729,16 @@ class InstallmentV3Test {
 
         InstallmentLoanV3 loan = InstallmentLoanV3.builder()
                 .installments(Arrays.asList(
-                        installment1, installment2, installment3, installment4, installment5)
-                )
+                        installment1, 
+                        installment2, 
+                        installment3, 
+                        installment4, 
+                        installment5
+                        ))
                 .status(Status.REPAYMENT_SUCCESS)
                 .build();
 
-        LocalDate calculationDate = LocalDate.parse("2025-04-30");
+        LocalDate calculationDate = LocalDate.parse("2025-05-05");
         Dpd dpd = loan.calculateLatestDpd(calculationDate);
         assertEquals(15, dpd.getLatestDpd());
         assertEquals(41, dpd.getMaxDpd());
