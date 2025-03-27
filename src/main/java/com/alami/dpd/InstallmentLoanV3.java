@@ -83,7 +83,7 @@ public class InstallmentLoanV3 {
     }
 
     private InstallmentDpd findLatestPeriodWithDpd(LocalDate calculationDate, LocalDate earliestMaturityDate) {
-        return installments.stream()
+        var res = installments.stream()
                 .filter(installment -> !installment.isGracePeriod())
                 .collect(Collectors.groupingBy(InstallmentV3::getPeriod))
                 .values().stream()
@@ -93,8 +93,10 @@ public class InstallmentLoanV3 {
                     
                     if (paidInstallment.isPresent() && paidInstallment.get().getRepaymentDate() != null) {
                         LocalDate repaymentDate = paidInstallment.get().getRepaymentDate();
-                        if (repaymentDate.isAfter(calculationDate)) {
-                            // For future payments, calculate DPD from maturity to repayment date
+                        LocalDate maturityDate = paidInstallment.get().getMaturityDate();
+                        
+                        if (repaymentDate.isAfter(maturityDate)) {
+                            // For late payments, calculate DPD from maturity to repayment date
                             return createInstallmentDpd(
                                 paidInstallment.get(),
                                 repaymentDate,
@@ -115,8 +117,55 @@ public class InstallmentLoanV3 {
                     return null;
                 })
                 .filter(Objects::nonNull)
-                .min((a, b) -> a.getMaturityDate().compareTo(b.getMaturityDate()))
+                .filter(dpd -> dpd.getDpd() > 0)  // Only consider periods with DPD > 0
+                .max((a, b) -> {
+                    // Get the installments for both periods
+                    InstallmentV3 installmentA = installments.stream()
+                            .filter(i -> i.getMaturityDate().equals(a.getMaturityDate()))
+                            .findFirst()
+                            .orElse(null);
+                    InstallmentV3 installmentB = installments.stream()
+                            .filter(i -> i.getMaturityDate().equals(b.getMaturityDate()))
+                            .findFirst()
+                            .orElse(null);
+                    
+                    if (installmentA != null && installmentB != null) {
+                        // If one is NOT_PAID and the other is PAID, prioritize NOT_PAID
+                        boolean isNotPaidA = !installmentA.isFullyPaid();
+                        boolean isNotPaidB = !installmentB.isFullyPaid();
+                        if (isNotPaidA && !isNotPaidB) return 1;
+                        if (!isNotPaidA && isNotPaidB) return -1;
+                        
+                        // If both are NOT_PAID, check if there are multiple NOT_PAID periods with DPD > 0
+                        if (isNotPaidA && isNotPaidB) {
+                            // Count how many NOT_PAID periods with DPD > 0
+                            long notPaidCount = installments.stream()
+                                    .filter(i -> !i.isFullyPaid())
+                                    .filter(i -> {
+                                        InstallmentDpd dpd = createInstallmentDpd(i, calculationDate, earliestMaturityDate);
+                                        return dpd != null && dpd.getDpd() > 0;
+                                    })
+                                    .count();
+                            
+                            // If there are multiple NOT_PAID periods with DPD > 0, return highest DPD
+                            // Otherwise, return its DPD
+                            if (notPaidCount > 1) {
+                                return Long.compare(a.getDpd(), b.getDpd());
+                            } else {
+                                return 0;
+                            }
+                        }
+                        
+                        // Otherwise (both are PAID or single NOT_PAID), return latest period
+                        return Integer.compare(installmentA.getPeriod(), installmentB.getPeriod());
+                    }
+                    
+                    // Fallback to maturity date comparison
+                    return a.getMaturityDate().compareTo(b.getMaturityDate());
+                })
                 .orElse(null);
+
+        return res;
     }
 
     private InstallmentDpd createInstallmentDpd(InstallmentV3 installment, LocalDate calculationDate, LocalDate earliestMaturityDate) {
